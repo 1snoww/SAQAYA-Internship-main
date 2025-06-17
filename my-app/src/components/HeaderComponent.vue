@@ -5,10 +5,19 @@
       <nav class="nav">
         <router-link to="/products">Products</router-link>
         <router-link to="/contact">Contact</router-link>
+        <button class="cart-btn" @click="showSidebar = true">🛒</button>
       </nav>
     </div>
+    <CartSidebar :visible="showSidebar" @close="showSidebar = false" />
   </header>
 </template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+import CartSidebar from './CartSidebar.vue'
+
+const showSidebar = ref(false)
+</script>
 
 <style scoped>
 .header {
@@ -27,12 +36,16 @@
   font-size: 1.5rem;
   font-weight: bold;
 }
-.nav a {
+.nav a, .cart-btn {
   color: white;
   margin-left: 15px;
   text-decoration: none;
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
 }
-.nav a:hover {
+.nav a:hover, .cart-btn:hover {
   text-decoration: underline;
 }
 </style>
