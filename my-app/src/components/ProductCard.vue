@@ -1,7 +1,7 @@
 <template>
   <div class="product-card">
     <RouterLink :to="`/product/${id}`" class="product-link">
-      <img :src="image" :alt="title" class="product-img" />
+      <img :src="image || 'https://via.placeholder.com/200x150?text=No+Image'" :alt="title" class="product-img" />
       <h2>{{ title }}</h2>
       <p class="price">\${{ price }}</p>
       <p class="description">{{ description }}</p>
@@ -29,7 +29,13 @@ const props = defineProps<{
 }>()
 
 function addToCart() {
-  cart.addToCart({ id: props.id, title: props.title, price: props.price })
+  cart.addToCart({
+    id: props.id,
+    title: props.title,
+    price: props.price,
+    image: props.image // ✅ Pass image to cart
+  })
+
   toast.success(`${props.title} added to cart!`, {
     autoClose: 2000,
     position: toast.POSITION.TOP_RIGHT

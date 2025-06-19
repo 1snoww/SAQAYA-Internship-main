@@ -2,15 +2,16 @@ import { defineStore } from 'pinia'
 
 export const useCartStore = defineStore('cart', {
   state: () => ({
-    items: JSON.parse(localStorage.getItem('cart') || '[]') as {
+    items: [] as {
       id: number
       title: string
       price: number
+      image: string
       quantity: number
     }[]
   }),
   actions: {
-    addToCart(product: { id: number; title: string; price: number }) {
+    addToCart(product: { id: number; title: string; price: number; image: string }) {
       const existing = this.items.find(item => item.id === product.id)
       if (existing) {
         existing.quantity++
