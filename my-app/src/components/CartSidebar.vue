@@ -1,25 +1,38 @@
 <template>
-  <div v-if="visible" class="overlay" @click.self="closeSidebar">
-    <div class="sidebar">
-      <h2>Your Cart</h2>
-      <div v-if="cart.items.length">
-        <div v-for="item in cart.items" :key="item.id" class="item">
-          <img :src="item.image || 'https://via.placeholder.com/60'" alt="product" />
-          <div class="details">
-            <p><strong>{{ item.title }}</strong></p>
-            <p>Quantity: x{{ item.quantity }}</p>
-            <p>\${{ (item.price * item.quantity).toFixed(2) }}</p>
+  <div v-if="visible" class="cart-sidebar">
+    <div class="cart-header">
+      <h3>Your Cart</h3>
+      <button class="close-btn" @click="$emit('close')">×</button>
+    </div>
+
+    <div v-if="cart.items.length > 0" class="cart-items">
+      <div v-for="item in cart.items" :key="item.id" class="cart-item">
+        <img :src="item.image" alt="" class="item-image" />
+        <div class="item-info">
+          <h4>{{ item.title }}</h4>
+          <p>
+            ${{ item.price }} x {{ item.quantity }} =
+            <strong>${{ (item.price * item.quantity).toFixed(2) }}</strong>
+          </p>
+          <div class="quantity-controls">
+          <div class="quantity-controls">
+            <button @click="decrement(item.id)" :disabled="item.quantity <= 1">−</button>
+            <span>{{ item.quantity }}</span>
+            <button @click="increment(item.id)">+</button>
+          </div>
+            <button class="remove-btn" @click="remove(item.id)">Remove</button>
           </div>
         </div>
-        <hr />
-        <div class="footer">
-          <h3>Total: \${{ cart.total.toFixed(2) }}</h3>
-          <button class="clear-btn" @click="cart.clearCart">Clear Cart</button>
-        </div>
       </div>
-      <div v-else>
-        <p>Your cart is empty.</p>
+      <div class="cart-footer">
+        <p>Total: <strong>${{ cart.total.toFixed(2) }}</strong></p>
+        <router-link to="/products" class="back-btn" @click="$emit('close')">⬅ Back to Products</router-link>
       </div>
+    </div>
+
+    <div v-else class="empty-cart">
+      <p>Your cart is empty.</p>
+      <router-link to="/products" class="back-btn" @click="$emit('close')">⬅ Back to Products</router-link>
     </div>
   </div>
 </template>
@@ -27,81 +40,154 @@
 <script setup lang="ts">
 import { useCartStore } from '../stores/cartStore'
 
-defineProps<{ visible: boolean }>()
-const emit = defineEmits(['close'])
-
+const props = defineProps<{ visible: boolean }>()
 const cart = useCartStore()
 
-function closeSidebar() {
-  emit('close')
+function increment(id: number) {
+  cart.incrementQuantity(id)
+}
+
+function decrement(id: number) {
+  cart.decrementQuantity(id)
+}
+
+function remove(id: number) {
+  cart.removeFromCart(id)
 }
 </script>
 
 <style scoped>
-.overlay {
+.cart-sidebar {
   position: fixed;
   top: 0;
   right: 0;
-  width: 100%;
+  width: 340px;
   height: 100%;
-  background: rgba(0, 0, 0, 0.3);
-  z-index: 2000;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.sidebar {
-  background: #1f2e3d;
-  width: 320px;
-  height: 100%;
-  padding: 20px;
+  background: #fdfdfd;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
   overflow-y: auto;
-  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.2);
-  animation: slide-in 0.3s ease forwards;
+  padding: 20px;
+  border-left: 4px solid #1f2e3d;
 }
 
-@keyframes slide-in {
-  from {
-    transform: translateX(100%);
-  }
-  to {
-    transform: translateX(0%);
-  }
-}
-
-.item {
+.cart-header {
   display: flex;
-  gap: 10px;
-  padding: 12px 0;
-  border-bottom: 1px solid #000000;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
 }
 
-.item img {
-  width: 60px;
-  height: 60px;
-  object-fit: cover;
+.cart-header h3 {
+  font-size: 1.3rem;
+  color: #1f2e3d;
+  margin: 0;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #1f2e3d;
+}
+
+.cart-items {
+  margin-top: 10px;
+}
+
+.cart-item {
+  display: flex;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.item-image {
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+  background: #fff;
+  border: 1px solid #ddd;
   border-radius: 6px;
 }
 
-.details p {
-  margin: 2px 0;
+.item-info h4 {
+  font-size: 0.95rem;
+  color: #2c3e50;
+  margin: 0 0 4px 0;
+  line-height: 1.2;
+}
+
+.item-info p {
+  margin: 3px 0;
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.quantity-controls button {
+  padding: 4px 8px;
   font-size: 0.9rem;
-}
-
-.footer {
-  margin-top: 15px;
-}
-
-.clear-btn {
-  background-color: #e74c3c;
+  background: #1f2e3d;
   color: white;
-  padding: 6px 12px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
 }
 
-.clear-btn:hover {
-  background-color: #c0392b;
+.quantity-controls button:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}
+
+.remove-btn {
+  background: #e74c3c;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.cart-footer {
+  padding-top: 12px;
+  border-top: 1px solid #ccc;
+  margin-top: 12px;
+}
+
+.cart-footer p {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #1f2e3d;
+}
+
+.back-btn {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 8px 12px;
+  background-color: #1f2e3d;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.back-btn:hover {
+  background-color: #34495e;
+}
+
+.empty-cart {
+  margin-top: 40px;
+  text-align: center;
+  font-style: italic;
+  color: #555;
 }
 </style>

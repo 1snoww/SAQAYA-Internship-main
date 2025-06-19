@@ -5,6 +5,7 @@
       <div v-for="item in cart.items" :key="item.id" class="cart-item">
         <p><strong>{{ item.title }}</strong> (x{{ item.quantity }})</p>
         <p>\${{ item.price.toFixed(2) }} each</p>
+        <p>({{ item.rating }})</p>
         <p>Total: \${{ (item.price * item.quantity).toFixed(2) }}</p>
         <button @click="cart.removeFromCart(item.id)">Remove</button>
       </div>

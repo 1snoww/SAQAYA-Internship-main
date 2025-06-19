@@ -68,22 +68,30 @@ function openCart() {
   gap: 16px;
 }
 
-.nav a {
+.nav a,
+.cart-btn {
+  padding: 8px 14px;
+  background-color: transparent;
+  border: 2px solid #ffffff;
+  border-radius: 6px;
   color: white;
-  text-decoration: none;
   font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s ease;
 }
 
-.nav a:hover {
-  text-decoration: underline;
+.nav a:hover,
+.cart-btn:hover {
+  background-color: #ffffff;
+  color: #1f2e3d;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .cart-btn {
-  background: none;
-  border: none;
-  color: white;
   font-size: 1.2rem;
-  cursor: pointer;
 }
 
 .hamburger {
@@ -114,6 +122,12 @@ function openCart() {
 
   .nav.open {
     display: flex;
+  }
+
+  .nav a,
+  .cart-btn {
+    width: 100%;
+    margin-bottom: 10px;
   }
 }
 </style>
