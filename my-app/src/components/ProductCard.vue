@@ -69,13 +69,16 @@ function addToCart() {
   padding: 12px;
   max-width: 280px;
   background-color: #fff;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-  transition: transform 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  cursor: pointer;
+  overflow: hidden;
 }
 
 .product-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transform: scale(1.03);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  z-index: 2;
 }
 
 .product-link {

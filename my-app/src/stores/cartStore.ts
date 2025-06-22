@@ -36,10 +36,9 @@ export const useCartStore = defineStore('cart', {
     },
 
     incrementQuantity(id: number) {
+  console.log('Increment:', id)
   const item = this.items.find(item => item.id === id)
-  if (item) {
-    item.quantity++
-  }
+  if (item) item.quantity++
 },
 
 decrementQuantity(id: number) {
