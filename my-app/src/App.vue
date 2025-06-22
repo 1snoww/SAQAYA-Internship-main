@@ -1,25 +1,35 @@
 <script setup lang="ts">
+import './style.css'
+import HeaderComponent from './components/HeaderComponent.vue'
+import FooterComponent from './components/FooterComponent.vue'
 </script>
 
 <template>
   <HeaderComponent />
   <main>
-    <router-view />
+    <transition name="fade" mode="out-in">
+      <router-view />
+    </transition>
   </main>
   <FooterComponent />
 </template>
-
-<script setup lang="ts">
-import HeaderComponent from './components/HeaderComponent.vue'
-import FooterComponent from './components/FooterComponent.vue'
-</script>
 
 <style scoped>
 main {
   padding: 20px;
 }
-</style>
 
+/* Transition Styles */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>
 
 <style scoped>
 .logo {

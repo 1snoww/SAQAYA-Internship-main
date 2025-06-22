@@ -11,6 +11,11 @@
         <router-link to="/products" @click="closeMenu">Products</router-link>
         <router-link to="/contact" @click="closeMenu">Contact</router-link>
         <button class="cart-btn" @click="openCart">🛒</button>
+
+        <button @click="toggleDarkMode" class="dark-toggle-btn">
+        {{ isDarkMode ? '☀️ Light Mode' : '🌙 Dark Mode' }}
+        </button>
+
       </nav>
     </div>
 
@@ -19,11 +24,30 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+
 import CartSidebar from './CartSidebar.vue'
 
 const menuOpen = ref(false)
 const showSidebar = ref(false)
+
+import { ref, watch } from 'vue'
+
+const isDarkMode = ref(localStorage.getItem('theme') === 'dark')
+
+// Set initial mode
+if (isDarkMode.value) document.documentElement.classList.add('dark')
+
+// Watch toggle
+watch(isDarkMode, (val) => {
+  const html = document.documentElement
+  val ? html.classList.add('dark') : html.classList.remove('dark')
+  localStorage.setItem('theme', val ? 'dark' : 'light')
+})
+
+function toggleDarkMode() {
+  isDarkMode.value = !isDarkMode.value
+}
+
 
 function toggleMenu() {
   menuOpen.value = !menuOpen.value
@@ -44,6 +68,14 @@ function openCart() {
   background-color: #1f2e3d;
   color: white;
   padding: 16px 0;
+}
+
+.theme-toggle {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  margin-left: auto;
 }
 
 .container {
@@ -102,6 +134,18 @@ function openCart() {
   color: white;
   cursor: pointer;
 }
+
+.dark-toggle-btn {
+  background: none;
+  border: 1px solid #ccc;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: inherit;
+  margin-left: auto;
+  font-size: 0.9rem;
+}
+
 
 @media (max-width: 768px) {
   .hamburger {
