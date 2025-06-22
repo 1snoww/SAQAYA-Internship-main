@@ -113,7 +113,6 @@ function prevPage() {
   margin: 0 auto;
   padding: 20px;
   box-sizing: border-box;
-  
 }
 
 .filter-bar {
@@ -123,7 +122,7 @@ function prevPage() {
   gap: 16px;
   margin-bottom: 24px;
   padding: 16px 20px;
-  background-color: #f8f9fa;
+  background-color: var(--bg-color);
   border: 1px solid #ddd;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
@@ -141,7 +140,7 @@ function prevPage() {
   font-weight: bold;
   font-size: 0.95rem;
   margin-bottom: 4px;
-  color: #2c3e50;
+  color: var(--text-color);
 }
 
 .filter-select {
@@ -166,6 +165,7 @@ function prevPage() {
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 20px;
   margin-top: 30px;
+  color: #1f2e3d;
 }
 
 .pagination {

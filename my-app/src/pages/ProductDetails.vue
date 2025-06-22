@@ -2,7 +2,7 @@
   <div v-if="product" class="details-container">
     <img :src="product.image" :alt="product.title" class="details-img" />
     <div class="details-info">
-      <h2>{{ product.title }}</h2>
+      <p class="title">{{ product.title }}</p>
       <p class="price">Price: ${{ product.price.toFixed(2) }}</p>
       <p class="rating">
         Rating:
@@ -25,16 +25,16 @@
   <div class="suggested-section" v-if="suggested.length">
     <h3>Suggested Products</h3>
     <div class="suggested-scroll">
-      <div
+      <router-link
         class="suggested-card"
         v-for="item in suggested"
         :key="item.id"
-        @click="goToProduct(item.id)"
+        :to="`/product/${item.id}`"
       >
         <img :src="item.image" :alt="item.title" />
         <p class="suggested-title">{{ item.title }}</p>
         <p class="suggested-price">${{ item.price.toFixed(2) }}</p>
-      </div>
+      </router-link>
     </div>
   </div>
 
@@ -46,44 +46,50 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router'
 import { useCartStore } from '../stores/cartStore'
-import { toast } from 'vue3-toastify'
-import 'vue3-toastify/dist/index.css'
 import { products as rawProducts } from '../data/productsData'
+import { ref, computed, watch } from 'vue'
+import { useNotification } from '../composables/useNotification'
 
 const route = useRoute()
 const router = useRouter()
 const cart = useCartStore()
-const productId = Number(route.params.id)
+const notify = useNotification()
 
+const productId = ref(Number(route.params.id))
 const products = rawProducts
-const product = products.find(p => p.id === productId)
 
-const suggested = products.filter(
-  p => p.category === product?.category && p.id !== productId
-).slice(0, 8)
+const product = ref(products.find(p => p.id === productId.value) || null)
+
+const suggested = ref(
+  products.filter(p => p.category === product.value?.category && p.id !== product.value?.id).slice(0, 8)
+)
+
+watch(
+  () => route.params.id,
+  (newId) => {
+    productId.value = Number(newId)
+    product.value = products.find(p => p.id === productId.value) || null
+    suggested.value = products
+      .filter(p => p.category === product.value?.category && p.id !== product.value?.id)
+      .slice(0, 8)
+  }
+)
 
 function goBack() {
   router.push('/products')
 }
 
 function addToCart() {
-  if (product) {
+  if (product.value) {
     cart.addToCart({
-      id: product.id,
-      title: product.title,
-      price: product.price,
-      image: product.image,
-      rating: product.rating.rate
+      id: product.value.id,
+      title: product.value.title,
+      price: product.value.price,
+      image: product.value.image,
+      rating: product.value.rating.rate
     })
-    toast.success(`${product.title} added to cart!`, {
-      autoClose: 2000,
-      position: toast.POSITION.TOP_RIGHT
-    })
+    notify.success(`${product.value.title} added to cart!`)
   }
-}
-
-function goToProduct(id: number) {
-  router.push(`/product/${id}`)
 }
 </script>
 
@@ -120,6 +126,12 @@ function goToProduct(id: number) {
   color: #2c3e50;
 }
 
+.title {
+  font-size: 1.9rem;
+  font-weight: bold;
+  margin: 10px 0;
+  color: #2c3e50;
+}
 .rating {
   font-size: 1rem;
   color: #333;
@@ -206,9 +218,10 @@ function goToProduct(id: number) {
   border: 1px solid #ddd;
   border-radius: 10px;
   padding: 10px;
-  cursor: pointer;
   flex-shrink: 0;
   transition: transform 0.2s ease;
+  text-decoration: none;
+  color: inherit;
 }
 
 .suggested-card:hover {

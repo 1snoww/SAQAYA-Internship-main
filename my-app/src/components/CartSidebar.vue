@@ -15,17 +15,17 @@
             <strong>${{ (item.price * item.quantity).toFixed(2) }}</strong>
           </p>
           <div class="quantity-controls">
-          <div class="quantity-controls">
             <button @click="decrement(item.id)" :disabled="item.quantity <= 1">−</button>
             <span>{{ item.quantity }}</span>
             <button @click="increment(item.id)">+</button>
-          </div>
             <button class="remove-btn" @click="remove(item.id)">Remove</button>
           </div>
         </div>
       </div>
+
       <div class="cart-footer">
         <p>Total: <strong>${{ cart.total.toFixed(2) }}</strong></p>
+        <router-link to="/checkout" class="checkout-btn" @click="$emit('close')">Proceed to Checkout</router-link>
         <router-link to="/products" class="back-btn" @click="$emit('close')">⬅ Back to Products</router-link>
       </div>
     </div>
@@ -160,6 +160,9 @@ function remove(id: number) {
   padding-top: 12px;
   border-top: 1px solid #ccc;
   margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .cart-footer p {
@@ -168,16 +171,30 @@ function remove(id: number) {
   color: #1f2e3d;
 }
 
+.checkout-btn {
+  background-color: #2ecc71;
+  color: white;
+  padding: 10px;
+  border-radius: 6px;
+  text-align: center;
+  font-weight: bold;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+.checkout-btn:hover {
+  background-color: #27ae60;
+}
+
 .back-btn {
   display: inline-block;
-  margin-top: 12px;
   padding: 8px 12px;
   background-color: #1f2e3d;
   color: white;
   text-decoration: none;
   border-radius: 5px;
   font-size: 0.9rem;
-  transition: background-color 0.3s ease;
+  text-align: center;
 }
 
 .back-btn:hover {
