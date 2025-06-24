@@ -52,58 +52,68 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script>
 import ProductCard from '../components/ProductCard.vue'
-import { ref, computed } from 'vue'
 import { products as rawProducts } from '../data/productsData'
 
-const selectedCategory = ref('')
-const sortOption = ref('')
-const searchTerm = ref('')
-const currentPage = ref(1)
-const itemsPerPage = 8
+export default {
+  name: 'ProductsPage',
+  components: {
+    ProductCard
+  },
+  data() {
+    return {
+      products: rawProducts,
+      selectedCategory: '',
+      sortOption: '',
+      searchTerm: '',
+      currentPage: 1,
+      itemsPerPage: 8
+    }
+  },
+  computed: {
+    categories() {
+      return [...new Set(this.products.map(p => p.category))]
+    },
+    filteredAndSortedProducts() {
+      let filtered = this.selectedCategory
+        ? this.products.filter(p => p.category === this.selectedCategory)
+        : this.products
 
-const products = ref(rawProducts)
+      if (this.searchTerm) {
+        filtered = filtered.filter(p =>
+          p.title.toLowerCase().includes(this.searchTerm.toLowerCase())
+        )
+      }
 
-const categories = computed(() => {
-  return [...new Set(products.value.map(p => p.category))]
-})
+      if (this.sortOption === 'asc') {
+        filtered = [...filtered].sort((a, b) => a.price - b.price)
+      } else if (this.sortOption === 'desc') {
+        filtered = [...filtered].sort((a, b) => b.price - a.price)
+      }
 
-const filteredAndSortedProducts = computed(() => {
-  let filtered = selectedCategory.value
-    ? products.value.filter(p => p.category === selectedCategory.value)
-    : products.value
-
-  if (searchTerm.value) {
-    filtered = filtered.filter(p =>
-      p.title.toLowerCase().includes(searchTerm.value.toLowerCase())
-    )
+      return filtered
+    },
+    totalPages() {
+      return Math.ceil(this.filteredAndSortedProducts.length / this.itemsPerPage)
+    },
+    paginatedProducts() {
+      const start = (this.currentPage - 1) * this.itemsPerPage
+      return this.filteredAndSortedProducts.slice(start, start + this.itemsPerPage)
+    }
+  },
+  methods: {
+    nextPage() {
+      if (this.currentPage < this.totalPages) {
+        this.currentPage++
+      }
+    },
+    prevPage() {
+      if (this.currentPage > 1) {
+        this.currentPage--
+      }
+    }
   }
-
-  if (sortOption.value === 'asc') {
-    filtered = [...filtered].sort((a, b) => a.price - b.price)
-  } else if (sortOption.value === 'desc') {
-    filtered = [...filtered].sort((a, b) => b.price - a.price)
-  }
-
-  return filtered
-})
-
-const totalPages = computed(() =>
-  Math.ceil(filteredAndSortedProducts.value.length / itemsPerPage)
-)
-
-const paginatedProducts = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage
-  return filteredAndSortedProducts.value.slice(start, start + itemsPerPage)
-})
-
-function nextPage() {
-  if (currentPage.value < totalPages.value) currentPage.value++
-}
-
-function prevPage() {
-  if (currentPage.value > 1) currentPage.value--
 }
 </script>
 

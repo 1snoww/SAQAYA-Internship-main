@@ -31,28 +31,34 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref } from 'vue'
+<script>
 import { useRouter } from 'vue-router'
 import { useCartStore } from '../stores/cartStore'
 import { useNotification } from '../composables/useNotification'
 
-const router = useRouter()
-const cart = useCartStore()
-const { success } = useNotification()
+export default {
+  name: 'CheckoutPage',
+  data() {
+    return {
+      form: {
+        name: '',
+        email: '',
+        address: ''
+      },
+      cart: useCartStore(),
+      notify: useNotification(),
+      router: useRouter()
+    }
+  },
+  methods: {
+    placeOrder() {
+      if (this.cart.items.length === 0) return
 
-const form = ref({
-  name: '',
-  email: '',
-  address: '',
-})
-
-function placeOrder() {
-  if (cart.items.length === 0) return
-
-  success('Order placed successfully! 🎉')
-  cart.clearCart()
-  router.push('/products')
+      this.notify.success('Order placed successfully! 🎉')
+      this.cart.clearCart()
+      this.router.push('/products')
+    }
+  }
 }
 </script>
 

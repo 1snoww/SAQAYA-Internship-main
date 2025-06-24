@@ -43,52 +43,64 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script>
 import { useRoute, useRouter } from 'vue-router'
 import { useCartStore } from '../stores/cartStore'
-import { products as rawProducts } from '../data/productsData'
-import { ref, computed, watch } from 'vue'
+import { products } from '../data/productsData'
 import { useNotification } from '../composables/useNotification'
 
-const route = useRoute()
-const router = useRouter()
-const cart = useCartStore()
-const notify = useNotification()
-
-const productId = ref(Number(route.params.id))
-const products = rawProducts
-
-const product = ref(products.find(p => p.id === productId.value) || null)
-
-const suggested = ref(
-  products.filter(p => p.category === product.value?.category && p.id !== product.value?.id).slice(0, 8)
-)
-
-watch(
-  () => route.params.id,
-  (newId) => {
-    productId.value = Number(newId)
-    product.value = products.find(p => p.id === productId.value) || null
-    suggested.value = products
-      .filter(p => p.category === product.value?.category && p.id !== product.value?.id)
-      .slice(0, 8)
-  }
-)
-
-function goBack() {
-  router.push('/products')
-}
-
-function addToCart() {
-  if (product.value) {
-    cart.addToCart({
-      id: product.value.id,
-      title: product.value.title,
-      price: product.value.price,
-      image: product.value.image,
-      rating: product.value.rating.rate
-    })
-    notify.success(`${product.value.title} added to cart!`)
+export default {
+  name: 'ProductDetails',
+  data() {
+    return {
+      route: useRoute(),
+      router: useRouter(),
+      cart: useCartStore(),
+      notify: useNotification(),
+      productId: Number(useRoute().params.id),
+      product: null,
+      suggested: []
+    }
+  },
+  created() {
+    this.loadProduct()
+  },
+  watch: {
+    'route.params.id': {
+      immediate: true,
+      handler(newId) {
+        this.productId = Number(newId)
+        this.loadProduct()
+      }
+    }
+  },
+  methods: {
+    loadProduct() {
+      this.product = products.find(p => p.id === this.productId) || null
+      this.suggested = this.product
+        ? products
+            .filter(
+              p =>
+                p.category === this.product.category &&
+                p.id !== this.product.id
+            )
+            .slice(0, 8)
+        : []
+    },
+    goBack() {
+      this.router.push('/products')
+    },
+    addToCart() {
+      if (!this.product) return
+      this.cart.addToCart({
+        id: this.product.id,
+        title: this.product.title,
+        price: this.product.price,
+        image: this.product.image,
+        rating: this.product.rating.rate
+      })
+      this.notify.success(`${this.product.title} added to cart!`)
+    }
   }
 }
 </script>

@@ -27,6 +27,7 @@
         <p>Total: <strong>${{ cart.total.toFixed(2) }}</strong></p>
         <router-link to="/checkout" class="checkout-btn" @click="$emit('close')">Proceed to Checkout</router-link>
         <router-link to="/products" class="back-btn" @click="$emit('close')">⬅ Back to Products</router-link>
+        <router-link to="/cart" class="back-btn" @click="$emit('close')"> Cart </router-link>
       </div>
     </div>
 
@@ -37,22 +38,33 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script>
 import { useCartStore } from '../stores/cartStore'
 
-const props = defineProps<{ visible: boolean }>()
-const cart = useCartStore()
-
-function increment(id: number) {
-  cart.incrementQuantity(id)
-}
-
-function decrement(id: number) {
-  cart.decrementQuantity(id)
-}
-
-function remove(id: number) {
-  cart.removeFromCart(id)
+export default {
+  name: 'CartSidebar',
+  props: {
+    visible: {
+      type: Boolean,
+      required: true
+    }
+  },
+  data() {
+    return {
+      cart: useCartStore()
+    }
+  },
+  methods: {
+    increment(id) {
+      this.cart.incrementQuantity(id)
+    },
+    decrement(id) {
+      this.cart.decrementQuantity(id)
+    },
+    remove(id) {
+      this.cart.removeFromCart(id)
+    }
+  }
 }
 </script>
 
