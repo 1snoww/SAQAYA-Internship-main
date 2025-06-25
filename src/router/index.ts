@@ -8,12 +8,12 @@ const routes = [
   { path: '/products', component: ProductsPage },
   { path: '/product/:id', component: ProductDetails },
   { path: '/contact', component: ContactPage },
-  { path: '/cart', component: CartPage } 
+  { path: '/cart', component: CartPage },
 ]
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
 })
 
 export default router

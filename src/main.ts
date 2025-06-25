@@ -12,6 +12,6 @@ app.use(router)
 app.use(Toast, {
   autoClose: 3000,
   position: 'top-right',
-  theme: localStorage.getItem('theme') === 'dark' ? 'dark' : 'light'
+  theme: localStorage.getItem('theme') === 'dark' ? 'dark' : 'light',
 })
 app.mount('#app')
