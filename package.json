@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "name": "snowsaqaya",
   "version": "0.0.0",
   "private": true,
@@ -42,5 +43,11 @@
     "vite-plugin-vue-devtools": "^7.7.7",
     "vitest": "^3.2.4",
     "vue-tsc": "^2.2.10"
+=======
+  "dependencies": {
+    "pinia": "^3.0.3",
+    "vue-router": "^4.5.1",
+    "vue3-toastify": "^0.2.8"
+>>>>>>> 6e1755b0a49fbe86d8df731b390b31f73d9d2df8
   }
 }
