@@ -11,19 +11,20 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'SortDropdown',
-  data() {
-    return {
-      selected: 'default'
-    }
-  },
-  methods: {
-    emitSort() {
-      this.$emit('sort', this.selected)
-    }
-  }
+<script setup lang="ts">
+import { ref } from 'vue'
+
+// Declare the emit signature
+const emit = defineEmits<{
+  (e: 'sort', value: string): void
+}>()
+
+// Reactive selected value
+const selected = ref<string>('default')
+
+// When the dropdown changes, emit the new sort key
+function emitSort() {
+  emit('sort', selected.value)
 }
 </script>
 
@@ -31,12 +32,16 @@ export default {
 .sort-dropdown {
   display: flex;
   align-items: center;
-  margin-bottom: 1rem;
-  gap: 8px;
+  gap: 0.5rem;
 }
 
-select {
-  padding: 6px 10px;
+.sort-dropdown label {
+  font-weight: 500;
+}
+
+.sort-dropdown select {
+  padding: 0.3rem 0.6rem;
+  border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 1rem;
 }

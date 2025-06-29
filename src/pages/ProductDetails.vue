@@ -1,9 +1,12 @@
 <template>
+  <!-- PRODUCT DETAILS -->
   <div v-if="product" class="details-container">
     <img :src="product.image" :alt="product.title" class="details-img" />
+
     <div class="details-info">
       <p class="title">{{ product.title }}</p>
       <p class="price">Price: ${{ product.price.toFixed(2) }}</p>
+
       <p class="rating">
         Rating:
         <span class="stars">
@@ -14,22 +17,24 @@
         </span>
         ({{ product.rating.count }} reviews)
       </p>
+
       <p class="desc">{{ product.description }}</p>
       <p class="category">{{ product.category }}</p>
 
       <button class="add-to-cart-btn" @click="addToCart">Add to Cart</button>
-      <button class="back-btn" @click="goBack">← Back to Products</button>
+      <button class="back-btn" @click="router.push('/products')">← Back to Products</button>
     </div>
   </div>
 
-  <div class="suggested-section" v-if="suggested.length">
+  <!-- SUGGESTED SCROLLER -->
+  <div v-if="suggested.length" class="suggested-section">
     <h3>Suggested Products</h3>
     <div class="suggested-scroll">
       <router-link
-        class="suggested-card"
         v-for="item in suggested"
         :key="item.id"
         :to="`/product/${item.id}`"
+        class="suggested-card"
       >
         <img :src="item.image" :alt="item.title" />
         <p class="suggested-title">{{ item.title }}</p>
@@ -38,74 +43,59 @@
     </div>
   </div>
 
-  <div v-else>
-    <p>Product not found.</p>
-  </div>
+  <p v-else>Product not found.</p>
 </template>
 
-<script>
+<script setup lang="ts">
+import { computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useProductStore } from '../stores/productStore'
 import { useCartStore } from '../stores/cartStore'
-import { products } from '../data/productsData'
 import { useNotification } from '../composables/useNotification'
 
-export default {
-  name: 'ProductDetails',
-  data() {
-    return {
-      route: useRoute(),
-      router: useRouter(),
-      cart: useCartStore(),
-      notify: useNotification(),
-      productId: Number(useRoute().params.id),
-      product: null,
-      suggested: []
-    }
-  },
-  created() {
-    this.loadProduct()
-  },
-  watch: {
-    'route.params.id': {
-      immediate: true,
-      handler(newId) {
-        this.productId = Number(newId)
-        this.loadProduct()
-      }
-    }
-  },
-  methods: {
-    loadProduct() {
-      this.product = products.find(p => p.id === this.productId) || null
-      this.suggested = this.product
-        ? products
-            .filter(
-              p =>
-                p.category === this.product.category &&
-                p.id !== this.product.id
-            )
-            .slice(0, 8)
-        : []
-    },
-    goBack() {
-      this.router.push('/products')
-    },
-    addToCart() {
-      if (!this.product) return
-      this.cart.addToCart({
-        id: this.product.id,
-        title: this.product.title,
-        price: this.product.price,
-        image: this.product.image,
-        rating: this.product.rating.rate
-      })
-      this.notify.success(`${this.product.title} added to cart!`)
-    }
-  }
+/* router & stores */
+const route = useRoute()
+const router = useRouter()
+const products = useProductStore()
+const cart = useCartStore()
+const notify = useNotification()
+
+/* ensure catalogue is populated */
+onMounted(() => {
+  if (!products.products.length) products.loadProducts()
+})
+
+/* reactive refs */
+const productId = computed(() => Number(route.params.id))
+const product = computed(() => products.getById(productId.value) ?? null)
+
+const suggested = computed(() => {
+  if (!product.value) return []
+  return products.products
+    .filter((p) => p.category === product.value!.category && p.id !== product.value!.id)
+    .slice(0, 8)
+})
+
+/* redirect if param changes to invalid id */
+watch(route, () => {
+  if (!product.value) router.replace('/products')
+})
+
+function addToCart() {
+  if (!product.value) return
+  cart.addToCart({
+    id: product.value.id,
+    title: product.value.title,
+    price: product.value.price,
+    image: product.value.image,
+    rating: product.value.rating.rate,
+  })
+  notify.success(`${product.value.title} added to cart!`)
 }
 </script>
 
 <style scoped>
+/* — original styles unchanged — */
 .details-container {
   display: flex;
   flex-wrap: wrap;
@@ -144,6 +134,7 @@ export default {
   margin: 10px 0;
   color: #2c3e50;
 }
+
 .rating {
   font-size: 1rem;
   color: #333;

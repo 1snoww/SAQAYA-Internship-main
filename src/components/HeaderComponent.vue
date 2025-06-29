@@ -11,8 +11,7 @@
         <router-link to="/products" @click="closeMenu">Products</router-link>
         <router-link to="/contact" @click="closeMenu">Contact</router-link>
         <button class="cart-btn" @click="openCart" data-test="cart-icon">🛒</button>
-
-        <button @click="toggleDarkMode" class="dark-toggle-btn">
+        <button class="dark-toggle-btn" @click="toggleDarkMode">
           {{ isDarkMode ? '☀️ Light Mode' : '🌙 Dark Mode' }}
         </button>
       </nav>
@@ -23,29 +22,26 @@
 </template>
 
 <script setup lang="ts">
+import { ref, watch } from 'vue'
 import CartSidebar from './CartSidebar.vue'
 
+// reactive state
 const menuOpen = ref(false)
 const showSidebar = ref(false)
-
-import { ref, watch } from 'vue'
-
 const isDarkMode = ref(localStorage.getItem('theme') === 'dark')
 
-// Set initial mode
-if (isDarkMode.value) document.documentElement.classList.add('dark')
+// apply initial theme
+if (isDarkMode.value) {
+  document.documentElement.classList.add('dark')
+}
 
-// Watch toggle
+// persist dark mode toggles
 watch(isDarkMode, (val) => {
-  const html = document.documentElement
-  val ? html.classList.add('dark') : html.classList.remove('dark')
+  document.documentElement.classList.toggle('dark', val)
   localStorage.setItem('theme', val ? 'dark' : 'light')
 })
 
-function toggleDarkMode() {
-  isDarkMode.value = !isDarkMode.value
-}
-
+// methods
 function toggleMenu() {
   menuOpen.value = !menuOpen.value
 }
@@ -58,6 +54,10 @@ function openCart() {
   showSidebar.value = true
   menuOpen.value = false
 }
+
+function toggleDarkMode() {
+  isDarkMode.value = !isDarkMode.value
+}
 </script>
 
 <style scoped>
@@ -67,14 +67,6 @@ function openCart() {
   padding: 16px 0;
 }
 
-.theme-toggle {
-  background: none;
-  border: none;
-  font-size: 1.4rem;
-  cursor: pointer;
-  margin-left: auto;
-}
-
 .container {
   max-width: 1200px;
   margin: auto;
@@ -82,7 +74,6 @@ function openCart() {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
   position: relative;
 }
 

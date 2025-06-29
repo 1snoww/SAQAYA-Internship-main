@@ -1,30 +1,28 @@
 <template>
   <footer class="footer">
     <div class="container">
-      <p>© 2025 SAQAYA. All rights reserved.</p>
-      <p>Built by the Internship Team</p>
+      <p>© {{ year }} SAQAYA Shop. All rights reserved.</p>
     </div>
   </footer>
 </template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const year = ref(new Date().getFullYear())
+</script>
 
 <style scoped>
 .footer {
   background-color: #1f2e3d;
   color: white;
   padding: 20px 0;
-  font-size: 0.9rem;
+  text-align: center;
 }
 
 .container {
   max-width: 1200px;
-  margin: auto;
+  margin: 0 auto;
   padding: 0 20px;
-  text-align: center;
-}
-
-@media (max-width: 600px) {
-  .container {
-    font-size: 0.85rem;
-  }
 }
 </style>

@@ -3,6 +3,7 @@
     <h1>Checkout</h1>
 
     <form @submit.prevent="placeOrder" class="checkout-form">
+      <!-- CUSTOMER INFO -->
       <label>
         Full Name
         <input v-model="form.name" type="text" required />
@@ -18,51 +19,53 @@
         <textarea v-model="form.address" required></textarea>
       </label>
 
+      <!-- ORDER SUMMARY -->
       <h2>Order Summary</h2>
       <ul class="summary-list">
         <li v-for="item in cart.items" :key="item.id">
-          {{ item.title }} × {{ item.quantity }} — ${{ (item.quantity * item.price).toFixed(2) }}
+          {{ item.title }} × {{ item.quantity }} — $
+          {{ (item.quantity * item.price).toFixed(2) }}
         </li>
       </ul>
       <p class="total">Total: ${{ cart.total.toFixed(2) }}</p>
 
-      <button type="submit" class="place-order-btn">Place Order</button>
+      <button type="submit" class="place-order-btn" :disabled="!cart.items.length">
+        Place Order
+      </button>
     </form>
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
+import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCartStore } from '../stores/cartStore'
 import { useNotification } from '../composables/useNotification'
 
-export default {
-  name: 'CheckoutPage',
-  data() {
-    return {
-      form: {
-        name: '',
-        email: '',
-        address: ''
-      },
-      cart: useCartStore(),
-      notify: useNotification(),
-      router: useRouter()
-    }
-  },
-  methods: {
-    placeOrder() {
-      if (this.cart.items.length === 0) return
+/* local form state */
+const form = reactive({
+  name: '',
+  email: '',
+  address: '',
+})
 
-      this.notify.success('Order placed successfully! 🎉')
-      this.cart.clearCart()
-      this.router.push('/products')
-    }
-  }
+/* stores & router */
+const cart = useCartStore()
+const notify = useNotification()
+const router = useRouter()
+
+/* submit handler */
+function placeOrder() {
+  if (!cart.items.length) return
+
+  notify.success('Order placed successfully! 🎉')
+  cart.clearCart()
+  router.push('/products')
 }
 </script>
 
 <style scoped>
+/* original styles retained */
 .checkout-page {
   max-width: 600px;
   margin: auto;
@@ -119,7 +122,12 @@ export default {
   cursor: pointer;
 }
 
-.place-order-btn:hover {
+.place-order-btn:hover:not(:disabled) {
   background-color: #27ae60;
+}
+
+.place-order-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
 }
 </style>

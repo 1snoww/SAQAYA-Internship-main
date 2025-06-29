@@ -1,123 +1,127 @@
 <template>
   <div class="products-container">
+    <!-- FILTER BAR -->
     <div class="filter-bar">
+      <!-- Category -->
       <div class="filter-group">
         <label for="categoryFilter">Filter by Category:</label>
-        <select v-model="selectedCategory" id="categoryFilter" class="filter-select">
+        <select v-model="filter.selectedCategory" id="categoryFilter" class="filter-select">
           <option value="">All</option>
-          <option v-for="cat in categories" :key="cat">{{ cat }}</option>
+          <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
         </select>
       </div>
 
+      <!-- Sort -->
       <div class="filter-group">
         <label for="sortOption">Sort by Price:</label>
-        <select v-model="sortOption" id="sortOption" class="filter-select">
+        <select v-model="filter.sortOption" id="sortOption" class="filter-select">
           <option value="">Default</option>
           <option value="asc">Low to High</option>
           <option value="desc">High to Low</option>
         </select>
       </div>
 
+      <!-- Search -->
       <div class="filter-group">
         <label for="search">Search</label>
         <input
-          v-model="searchTerm"
+          v-model="filter.searchTerm"
           type="text"
-          placeholder="Search products..."
+          placeholder="Search products…"
           id="search"
           class="filter-select"
         />
       </div>
     </div>
 
+    <!-- PRODUCT GRID -->
     <div class="product-grid">
       <ProductCard
-        v-for="product in paginatedProducts"
-        :key="product.id"
-        :id="product.id"
-        :title="product.title"
-        :price="product.price"
-        :description="product.description"
-        :category="product.category"
-        :image="product.image"
-        :rating="product.rating.rate"
+        v-for="p in paginatedProducts"
+        :key="p.id"
+        :id="p.id"
+        :title="p.title"
+        :price="p.price"
+        :description="p.description"
+        :category="p.category"
+        :image="p.image"
+        :rating="p.rating.rate"
       />
     </div>
 
+    <!-- PAGINATION -->
     <div class="pagination">
-      <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
-      <span>Page {{ currentPage }} of {{ totalPages }}</span>
-      <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>
+      <button @click="pagination.prevPage()" :disabled="pagination.currentPage === 1">
+        Previous
+      </button>
+      <span>Page {{ pagination.currentPage }} of {{ totalPages }}</span>
+      <button
+        @click="pagination.nextPage(totalPages)"
+        :disabled="pagination.currentPage === totalPages"
+      >
+        Next
+      </button>
     </div>
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
+import { onMounted, computed, watch } from 'vue'
 import ProductCard from '../components/ProductCard.vue'
-import { products as rawProducts } from '../data/productsData'
 
-export default {
-  name: 'ProductsPage',
-  components: {
-    ProductCard
-  },
-  data() {
-    return {
-      products: rawProducts,
-      selectedCategory: '',
-      sortOption: '',
-      searchTerm: '',
-      currentPage: 1,
-      itemsPerPage: 8
-    }
-  },
-  computed: {
-    categories() {
-      return [...new Set(this.products.map(p => p.category))]
-    },
-    filteredAndSortedProducts() {
-      let filtered = this.selectedCategory
-        ? this.products.filter(p => p.category === this.selectedCategory)
-        : this.products
+import { useProductStore } from '../stores/productStore'
+import { useFilterStore } from '../stores/useFilterStore'
+import { usePaginationStore } from '../stores/usePaginationStore'
 
-      if (this.searchTerm) {
-        filtered = filtered.filter(p =>
-          p.title.toLowerCase().includes(this.searchTerm.toLowerCase())
-        )
-      }
+/* Pinia stores */
+const productsStore = useProductStore()
+const filter = useFilterStore()
+const pagination = usePaginationStore()
 
-      if (this.sortOption === 'asc') {
-        filtered = [...filtered].sort((a, b) => a.price - b.price)
-      } else if (this.sortOption === 'desc') {
-        filtered = [...filtered].sort((a, b) => b.price - a.price)
-      }
+/* Load catalogue once */
+onMounted(() => {
+  if (!productsStore.products.length) productsStore.loadProducts()
+})
 
-      return filtered
-    },
-    totalPages() {
-      return Math.ceil(this.filteredAndSortedProducts.length / this.itemsPerPage)
-    },
-    paginatedProducts() {
-      const start = (this.currentPage - 1) * this.itemsPerPage
-      return this.filteredAndSortedProducts.slice(start, start + this.itemsPerPage)
-    }
-  },
-  methods: {
-    nextPage() {
-      if (this.currentPage < this.totalPages) {
-        this.currentPage++
-      }
-    },
-    prevPage() {
-      if (this.currentPage > 1) {
-        this.currentPage--
-      }
-    }
-  }
-}
+/* Categories for dropdown */
+const categories = computed(() =>
+  Array.from(new Set(productsStore.products.map((p) => p.category)))
+)
+
+/* Filter + sort chain */
+const filteredProducts = computed(() => {
+  let list = productsStore.products
+
+  // category
+  if (filter.selectedCategory) list = list.filter((p) => p.category === filter.selectedCategory)
+
+  // search
+  if (filter.searchTerm)
+    list = list.filter((p) => p.title.toLowerCase().includes(filter.searchTerm.toLowerCase()))
+
+  // sort
+  if (filter.sortOption === 'asc') list = [...list].sort((a, b) => a.price - b.price)
+  else if (filter.sortOption === 'desc') list = [...list].sort((a, b) => b.price - a.price)
+
+  return list
+})
+
+/* Keep page in range when list length changes */
+watch(filteredProducts, () => pagination.resetPage())
+
+/* Page maths */
+const totalPages = computed(() =>
+  Math.max(1, Math.ceil(filteredProducts.value.length / pagination.itemsPerPage))
+)
+
+const paginatedProducts = computed(() => {
+  const start = (pagination.currentPage - 1) * pagination.itemsPerPage
+  return filteredProducts.value.slice(start, start + pagination.itemsPerPage)
+})
 </script>
 
 <style scoped>
+/* --- your original styles, unchanged --- */
 .products-container {
   max-width: 1200px;
   margin: 0 auto;

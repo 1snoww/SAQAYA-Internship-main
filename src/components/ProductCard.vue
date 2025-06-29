@@ -1,7 +1,11 @@
 <template>
   <div class="product-card">
     <RouterLink :to="`/product/${id}`" class="product-link" title="Click for details">
-      <img :src="image || 'https://via.placeholder.com/200x150?text=No+Image'" :alt="title" class="product-img" />
+      <img
+        :src="image || 'https://via.placeholder.com/200x150?text=No+Image'"
+        :alt="title"
+        class="product-img"
+      />
       <h2 class="title">{{ title }}</h2>
       <p class="price">
         ${{ price.toFixed(2) }}
@@ -19,71 +23,42 @@
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
+import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useCartStore } from '../stores/cartStore'
 import { toast } from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
 
-export default {
-  name: 'ProductCard',
-  components: {
-    RouterLink
-  },
-  props: {
-    id: {
-      type: Number,
-      required: true
-    },
-    title: {
-      type: String,
-      required: true
-    },
-    price: {
-      type: Number,
-      required: true
-    },
-    description: {
-      type: String,
-      required: true
-    },
-    category: {
-      type: String,
-      required: true
-    },
-    image: {
-      type: String,
-      required: true
-    },
-    rating: {
-      type: Number,
-      required: true
-    }
-  },
-  computed: {
-    shortDescription() {
-      return this.description.length > 80
-        ? this.description.slice(0, 77) + '...'
-        : this.description
-    }
-  },
-  methods: {
-    addToCart() {
-      const cart = useCartStore()
-      cart.addToCart({
-        id: this.id,
-        title: this.title,
-        price: this.price,
-        image: this.image,
-        rating: this.rating
-      })
+const props = defineProps<{
+  id: number
+  title: string
+  price: number
+  description: string
+  category: string
+  image: string
+  rating: number
+}>()
 
-      toast.success(`${this.title} added to cart!`, {
-        autoClose: 2000,
-        position: toast.POSITION.TOP_RIGHT
-      })
-    }
-  }
+// truncate long descriptions
+const shortDescription = computed(() =>
+  props.description.length > 80 ? props.description.slice(0, 77) + '...' : props.description
+)
+
+const cart = useCartStore()
+
+function addToCart() {
+  cart.addToCart({
+    id: props.id,
+    title: props.title,
+    price: props.price,
+    image: props.image,
+    rating: props.rating,
+  })
+  toast.success(`${props.title} added to cart!`, {
+    autoClose: 2000,
+    position: toast.POSITION.TOP_RIGHT,
+  })
 }
 </script>
 
@@ -176,3 +151,4 @@ export default {
   background-color: #2980b9;
 }
 </style>
+  

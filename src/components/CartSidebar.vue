@@ -2,7 +2,7 @@
   <div v-if="visible" class="cart-sidebar">
     <div class="cart-header">
       <h3>Your Cart</h3>
-      <button class="close-btn" @click="$emit('close')">×</button>
+      <button class="close-btn" @click="close">×</button>
     </div>
 
     <div v-if="cart.items.length > 0" class="cart-items">
@@ -24,47 +24,52 @@
       </div>
 
       <div class="cart-footer">
-        <p>Total: <strong>${{ cart.total.toFixed(2) }}</strong></p>
-        <router-link to="/checkout" class="checkout-btn" @click="$emit('close')">Proceed to Checkout</router-link>
-        <router-link to="/products" class="back-btn" @click="$emit('close')">⬅ Back to Products</router-link>
-        <router-link to="/cart" class="back-btn" @click="$emit('close')"> Cart </router-link>
+        <p>
+          Total: <strong>${{ cart.total.toFixed(2) }}</strong>
+        </p>
+        <router-link to="/checkout" class="checkout-btn" @click="close">
+          Proceed to Checkout
+        </router-link>
+        <router-link to="/products" class="back-btn" @click="close">
+          ⬅ Back to Products
+        </router-link>
+        <router-link to="/cart" class="back-btn" @click="close"> Cart </router-link>
       </div>
     </div>
 
     <div v-else class="empty-cart">
       <p>Your cart is empty.</p>
-      <router-link to="/products" class="back-btn" @click="$emit('close')">⬅ Back to Products</router-link>
+      <router-link to="/products" class="back-btn" @click="close"> ⬅ Back to Products </router-link>
     </div>
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
 import { useCartStore } from '../stores/cartStore'
+import { defineProps, defineEmits } from 'vue'
 
-export default {
-  name: 'CartSidebar',
-  props: {
-    visible: {
-      type: Boolean,
-      required: true
-    }
-  },
-  data() {
-    return {
-      cart: useCartStore()
-    }
-  },
-  methods: {
-    increment(id) {
-      this.cart.incrementQuantity(id)
-    },
-    decrement(id) {
-      this.cart.decrementQuantity(id)
-    },
-    remove(id) {
-      this.cart.removeFromCart(id)
-    }
-  }
+const props = defineProps<{ visible: boolean }>()
+
+const emit = defineEmits<{
+  (e: 'close'): void
+}>()
+
+const cart = useCartStore()
+
+function increment(id: number) {
+  cart.incrementQuantity(id)
+}
+
+function decrement(id: number) {
+  cart.decrementQuantity(id)
+}
+
+function remove(id: number) {
+  cart.removeFromCart(id)
+}
+
+function close() {
+  emit('close')
 }
 </script>
 
