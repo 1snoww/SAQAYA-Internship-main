@@ -40,20 +40,6 @@ Users can browse, filter, dive into details with suggested items, add products t
 
 ---
 
-## Tech Stack
-
-| Layer         | Choice                      | Why                                                            |
-| ------------- | --------------------------- | -------------------------------------------------------------- |
-| Framework     | **Vue 3 — Composition API** | Reactive primitives + `<script setup>` keep components concise |
-| State         | **Pinia**                   | Less boilerplate than Vuex, great TS inference                 |
-| Router        | **Vue Router 4**            | Dynamic params & guards with minimal config                    |
-| Build         | **Vite** + **TypeScript**   | HMR in ms, `vue-tsc` type-checking                             |
-| Tests         | **Vitest** + Vue Test Utils | Component tests run in ≈ 3 s                                   |
-| Styling       | Native CSS variables        | Token-driven theme, zero flash                                 |
-| Notifications | **vue3-toastify** (wrapped) | Decoupled via composable                                       |
-
----
-
 ## Architecture Diagram
 
 ```mermaid

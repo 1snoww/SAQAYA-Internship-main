@@ -46,7 +46,6 @@
 
 <script setup lang="ts">
 import { useCartStore } from '../stores/cartStore'
-import { defineProps, defineEmits } from 'vue'
 
 const props = defineProps<{ visible: boolean }>()
 

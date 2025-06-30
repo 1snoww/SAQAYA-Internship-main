@@ -83,12 +83,12 @@ onMounted(() => {
   if (!productsStore.products.length) productsStore.loadProducts()
 })
 
-/* Categories for dropdown */
+/* Category list for dropdown */
 const categories = computed(() =>
   Array.from(new Set(productsStore.products.map((p) => p.category)))
 )
 
-/* Filter + sort chain */
+/* Filter → search → sort chain */
 const filteredProducts = computed(() => {
   let list = productsStore.products
 
@@ -106,10 +106,10 @@ const filteredProducts = computed(() => {
   return list
 })
 
-/* Keep page in range when list length changes */
+/* Keep current page valid when list length changes */
 watch(filteredProducts, () => pagination.resetPage())
 
-/* Page maths */
+/* Paging helpers */
 const totalPages = computed(() =>
   Math.max(1, Math.ceil(filteredProducts.value.length / pagination.itemsPerPage))
 )
@@ -121,7 +121,7 @@ const paginatedProducts = computed(() => {
 </script>
 
 <style scoped>
-/* --- your original styles, unchanged --- */
+/* -- original styles unchanged -- */
 .products-container {
   max-width: 1200px;
   margin: 0 auto;
