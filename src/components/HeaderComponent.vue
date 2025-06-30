@@ -1,12 +1,24 @@
 <template>
   <header class="header">
     <div class="container">
-      <h1 class="logo">SAQAYA Shop</h1>
+      <!-- Logo + brand -->
+      <a
+        href="https://uk.linkedin.com/company/saqaya"
+        target="_blank"
+        rel="noopener"
+        class="logo-link"
+        title="Visit SAQAYA on LinkedIn"
+      >
+        <img :src="logoImg" alt="SAQAYA logo" class="logo-img" />
+      </a>
+      <h1 class="logo-title">SAQAYA&nbsp;Shop</h1>
 
+      <!-- Mobile hamburger -->
       <button class="hamburger" @click="toggleMenu">
         <span :class="{ open: menuOpen }">☰</span>
       </button>
 
+      <!-- Navigation -->
       <nav :class="['nav', { open: menuOpen }]">
         <router-link to="/products" @click="closeMenu">Products</router-link>
         <router-link to="/contact" @click="closeMenu">Contact</router-link>
@@ -24,40 +36,29 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import CartSidebar from './CartSidebar.vue'
+import logoImg from '../assets/saqaya-logo.png' // <— drop PNG here
 
-// reactive state
+/* ---------------- reactive state ---------------- */
 const menuOpen = ref(false)
 const showSidebar = ref(false)
 const isDarkMode = ref(localStorage.getItem('theme') === 'dark')
 
-// apply initial theme
-if (isDarkMode.value) {
-  document.documentElement.classList.add('dark')
-}
+/* initial theme */
+if (isDarkMode.value) document.documentElement.classList.add('dark')
 
-// persist dark mode toggles
 watch(isDarkMode, (val) => {
   document.documentElement.classList.toggle('dark', val)
   localStorage.setItem('theme', val ? 'dark' : 'light')
 })
 
-// methods
-function toggleMenu() {
-  menuOpen.value = !menuOpen.value
-}
-
-function closeMenu() {
-  menuOpen.value = false
-}
-
-function openCart() {
+/* -------------- methods -------------- */
+const toggleMenu = () => (menuOpen.value = !menuOpen.value)
+const closeMenu = () => (menuOpen.value = false)
+const openCart = () => {
   showSidebar.value = true
   menuOpen.value = false
 }
-
-function toggleDarkMode() {
-  isDarkMode.value = !isDarkMode.value
-}
+const toggleDarkMode = () => (isDarkMode.value = !isDarkMode.value)
 </script>
 
 <style scoped>
@@ -72,20 +73,34 @@ function toggleDarkMode() {
   margin: auto;
   padding: 0 20px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 16px;
   position: relative;
 }
 
-.logo {
+/* --- logo block --- */
+.logo-link {
+  display: flex;
+  align-items: center;
+}
+
+.logo-img {
+  width: 38px; /* adjust if needed */
+  height: 38px;
+  object-fit: contain;
+}
+
+.logo-title {
   font-size: 1.5rem;
   font-weight: bold;
+  margin: 0;
 }
 
 .nav {
   display: flex;
   align-items: center;
   gap: 16px;
+  margin-left: auto;
 }
 
 .nav a,
@@ -130,7 +145,6 @@ function toggleDarkMode() {
   border-radius: 4px;
   cursor: pointer;
   color: inherit;
-  margin-left: auto;
   font-size: 0.9rem;
 }
 
