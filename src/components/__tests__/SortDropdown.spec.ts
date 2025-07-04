@@ -2,11 +2,15 @@ import { mount } from '@vue/test-utils'
 import SortDropdown from '../SortDropdown.vue'
 import { describe, it, expect } from 'vitest'
 
-describe('SortDropdown.vue', () => {
-  it('emits sort event on selection change', async () => {
-    const wrapper = mount(SortDropdown)
-    const select = wrapper.find('select')
-    await select.setValue('price-asc')
-    expect(wrapper.emitted('sort')).toBeTruthy()
-  })
-})
+describe.each(['price-asc', 'price-desc', 'rating-asc', 'rating-desc'])(
+  'SortDropdown emits %s',
+  (key) => {
+    it(`emits "${key}" on change`, async () => {
+      const wrapper = mount(SortDropdown)
+      await wrapper.find('select').setValue(key)
+      const events = wrapper.emitted('sort')
+      expect(events).toHaveLength(1)
+      expect(events![0]).toEqual([key])
+    })
+  }
+)

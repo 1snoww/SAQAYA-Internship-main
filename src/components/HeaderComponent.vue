@@ -11,7 +11,7 @@
       >
         <img :src="logoImg" alt="SAQAYA logo" class="logo-img" />
       </a>
-      <h1 class="logo-title">SAQAYA&nbsp;Shop</h1>
+      <h1 class="logo-title">SAQAYA Shop</h1>
 
       <!-- Mobile hamburger -->
       <button class="hamburger" @click="toggleMenu">

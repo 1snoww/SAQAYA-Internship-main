@@ -1,0 +1,9 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`FooterComponent.vue > matches snapshot 1`] = `
+"<footer data-v-7490b180="" class="footer">
+  <div data-v-7490b180="" class="container">
+    <p data-v-7490b180="">© 2025 SAQAYA Shop. All rights reserved.</p>
+  </div>
+</footer>"
+`;
