@@ -43,44 +43,49 @@
     </div>
   </div>
 
-  <p v-else>Product not found.</p>
+  <p v-else-if="loaded && !product">Product not found.</p>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useProductStore } from '../stores/productStore'
-import { useCartStore } from '../stores/cartStore'
-import { useNotification } from '../composables/useNotification'
+import { useProductStore } from '@/stores/productStore'
+import { useCartStore } from '@/stores/cartStore'
+import { useNotification } from '@/composables/useNotification'
+import type { Product } from '@/types/product'
 
-/* router & stores */
+/* Stores and composables */
 const route = useRoute()
 const router = useRouter()
-const products = useProductStore()
+const productStore = useProductStore()
 const cart = useCartStore()
 const notify = useNotification()
 
-/* ensure catalogue is populated */
-onMounted(() => {
-  if (!products.products.length) products.loadProducts()
+/* State */
+const productId = computed(() => Number(route.params.id))
+const product = ref<Product | null>(null)
+const loaded = ref(false)
+
+/* Fetch product by ID from API */
+onMounted(async () => {
+  product.value = await productStore.fetchProductById(productId.value)
+  loaded.value = true
 })
 
-/* reactive refs */
-const productId = computed(() => Number(route.params.id))
-const product = computed(() => products.getById(productId.value) ?? null)
+/* Watch for param change */
+watch(productId, async (newId) => {
+  product.value = await productStore.fetchProductById(newId)
+})
 
+/* Suggested products from same category (local list) */
 const suggested = computed(() => {
-  if (!product.value) return []
-  return products.products
+  if (!product.value || !productStore.products.length) return []
+  return productStore.products
     .filter((p) => p.category === product.value!.category && p.id !== product.value!.id)
     .slice(0, 8)
 })
 
-/* redirect if param changes to invalid id */
-watch(route, () => {
-  if (!product.value) router.replace('/products')
-})
-
+/* Add to cart */
 function addToCart() {
   if (!product.value) return
   cart.addToCart({
@@ -95,7 +100,7 @@ function addToCart() {
 </script>
 
 <style scoped>
-/* — original styles unchanged — */
+/* all styles remain unchanged */
 .details-container {
   display: flex;
   flex-wrap: wrap;

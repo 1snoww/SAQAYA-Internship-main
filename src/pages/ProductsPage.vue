@@ -2,7 +2,6 @@
   <div class="products-container">
     <!-- FILTER BAR -->
     <div class="filter-bar">
-      <!-- Category -->
       <div class="filter-group">
         <label for="categoryFilter">Filter by Category:</label>
         <select v-model="filter.selectedCategory" id="categoryFilter" class="filter-select">
@@ -11,7 +10,6 @@
         </select>
       </div>
 
-      <!-- Sort -->
       <div class="filter-group">
         <label for="sortOption">Sort by Price:</label>
         <select v-model="filter.sortOption" id="sortOption" class="filter-select">
@@ -21,7 +19,6 @@
         </select>
       </div>
 
-      <!-- Search -->
       <div class="filter-group">
         <label for="search">Search</label>
         <input
@@ -73,43 +70,45 @@ import { useProductStore } from '../stores/productStore'
 import { useFilterStore } from '../stores/useFilterStore'
 import { usePaginationStore } from '../stores/usePaginationStore'
 
-/* Pinia stores */
 const productsStore = useProductStore()
 const filter = useFilterStore()
 const pagination = usePaginationStore()
 
-/* Load catalogue once */
-onMounted(() => {
-  if (!productsStore.products.length) productsStore.loadProducts()
+// Fetch products from API on first mount
+onMounted(async () => {
+  if (!productsStore.products.length) await productsStore.fetchProducts()
 })
 
-/* Category list for dropdown */
+// Compute distinct categories
 const categories = computed(() =>
   Array.from(new Set(productsStore.products.map((p) => p.category)))
 )
 
-/* Filter → search → sort chain */
+// Filtering and sorting
 const filteredProducts = computed(() => {
   let list = productsStore.products
 
-  // category
-  if (filter.selectedCategory) list = list.filter((p) => p.category === filter.selectedCategory)
+  if (filter.selectedCategory) {
+    list = list.filter((p) => p.category === filter.selectedCategory)
+  }
 
-  // search
-  if (filter.searchTerm)
+  if (filter.searchTerm) {
     list = list.filter((p) => p.title.toLowerCase().includes(filter.searchTerm.toLowerCase()))
+  }
 
-  // sort
-  if (filter.sortOption === 'asc') list = [...list].sort((a, b) => a.price - b.price)
-  else if (filter.sortOption === 'desc') list = [...list].sort((a, b) => b.price - a.price)
+  if (filter.sortOption === 'asc') {
+    list = [...list].sort((a, b) => a.price - b.price)
+  } else if (filter.sortOption === 'desc') {
+    list = [...list].sort((a, b) => b.price - a.price)
+  }
 
   return list
 })
 
-/* Keep current page valid when list length changes */
+// Reset pagination when filters change
 watch(filteredProducts, () => pagination.resetPage())
 
-/* Paging helpers */
+// Paging logic
 const totalPages = computed(() =>
   Math.max(1, Math.ceil(filteredProducts.value.length / pagination.itemsPerPage))
 )
